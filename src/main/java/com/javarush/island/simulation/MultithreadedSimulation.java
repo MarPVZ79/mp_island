@@ -93,7 +93,9 @@ public class MultithreadedSimulation {
                 for (int x = 0; x < island.getWidth(); x++) {
                     Location location = island.getLocation(x, y);
                     for (int p = 0; p < config.getInitialPlants(); p++) {
-                        location.addPlant(new Plant());
+                        if (p <= config.getPlantsMaxCount()) {
+                            location.addPlant(new Plant(config.getPlantsWeight()));
+                        }
                     }
                 }
             }
@@ -106,7 +108,9 @@ public class MultithreadedSimulation {
             for (int x = 0; x < island.getWidth(); x++) {
                 Location location = island.getLocation(x, y);
                 for (int i = 0; i < config.getPlantsPerCell(); i++) {
-                    location.addPlant(new Plant());
+                    if (location.getPlants().size() <= config.getPlantsMaxCount()) {
+                        location.addPlant(new Plant(config.getPlantsWeight()));
+                    }
                 }
             }
         }
@@ -125,7 +129,7 @@ public class MultithreadedSimulation {
                         animal.eat(animal.getCurrentLocation());
                         animal.move(island, finalX, finalY);
                         animal.reproduce(animal.getCurrentLocation());
-                        animal.setCurrentSatiety(animal.getCurrentSatiety() - 1);
+                        animal.setCurrentSatiety(animal.getCurrentSatiety() - animal.getWeight() / 500);
                         if (animal.getCurrentSatiety() <= 0) {
                             animal.die();
                             animal.getCurrentLocation().removeAnimal(animal);

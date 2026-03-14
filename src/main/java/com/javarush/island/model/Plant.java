@@ -9,5 +9,8 @@ public class Plant {
     public double getWeight() {
         return weight;
     }
+    public Plant(double weight){
+        this.weight = weight;
+    }
 }
 

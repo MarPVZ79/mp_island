@@ -21,6 +21,8 @@ public class SimulationConfig {
     // Дюрация в мс.
     private long tickDurationMs;
 
+    private int plantsMaxCount;
+    private double plantsWeight;
     private int threads;
     private String version;
     //Настройки
@@ -33,11 +35,17 @@ public class SimulationConfig {
         s.islandWidth = Integer.parseInt(properties.getProperty("island.width"));
         s.islandHeight = Integer.parseInt(properties.getProperty("island.height"));
         s.tickDurationMs = Integer.parseInt(properties.getProperty("island.tick"));
-        s.plantsPerCell = Integer.parseInt(properties.getProperty("plant.percell"));
-        s.initialPlants = Integer.parseInt(properties.getProperty("init.plant"));
         s.initSimulationTick = Integer.parseInt(properties.getProperty("island.maxsimpletick"));
+        s.plantsPerCell = Integer.parseInt(properties.getProperty("plant.percell"));
+        //количество растений при инициализации
+        s.initialPlants = Integer.parseInt(properties.getProperty("init.plant"));
+        //режим работы
         s.threads = Integer.parseInt(properties.getProperty("threads"));
+        //версия программы
         s.version = properties.getProperty("version");
+        s.plantsMaxCount = Integer.parseInt(properties.getProperty("plant.maxcount"));
+        s.plantsWeight = Double.parseDouble(properties.getProperty("plant.weight"));
+        //инициализация животных
         String[] iniAnimals = properties.getProperty("init.animal").split(";");
         for (int i = 0; i < iniAnimals.length; ++i)
         {
@@ -95,4 +103,8 @@ public class SimulationConfig {
     public int getInitialPlants() {return this.initialPlants;}
 
     public int getInitSimulationTick() {return this.initSimulationTick;}
+
+    public double getPlantsWeight() {return plantsWeight;}
+
+    public int getPlantsMaxCount() {return plantsMaxCount;}
 }

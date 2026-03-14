@@ -55,15 +55,17 @@ public abstract class Animal {
         if (currentSatiety >=  maxSatiety) {return;}
         for (Animal prey : locate.getAnimals()) {
             if (prey == this || !prey.isAlive()) continue;
-            if (eatListAnimal.containsKey(prey.getAnimalName())){
+            if (currentSatiety >= maxSatiety) continue;
+                if (eatListAnimal.containsKey(prey.getAnimalName())){
                 //хищник
                 Integer prob = eatListAnimal.get(prey.getAnimalName());
-                if (prob != null && ThreadLocalRandom.current().nextInt(100) < prob) {
-                    locate.removeAnimal(prey);
-                    prey.die();
-                    currentSatiety = Math.min(maxSatiety, currentSatiety + prey.getWeight());
-                    System.out.println(this.getAnimalName() + " съел " + prey.getAnimalName());
-                    if (eatListAnimal.containsKey("plant") && currentSatiety < maxSatiety) {
+                for (int i = 0; i < 3; i++){
+                    if (prob != null && ThreadLocalRandom.current().nextInt(100) < prob) {
+                      locate.removeAnimal(prey);
+                      prey.die();
+                      currentSatiety = Math.min(maxSatiety, currentSatiety + prey.getWeight());
+                      System.out.println(this.getAnimalName() + " съел " + prey.getAnimalName());
+                      if (eatListAnimal.containsKey("plant") && currentSatiety < maxSatiety) {
                         //травоядные+хищник
                         Integer probPlant = eatListAnimal.get("plant");
                         if (probPlant > 0) {
@@ -73,20 +75,26 @@ public abstract class Animal {
                                 System.out.println(this.getAnimalName() + " съел растение ");
                             }
                         }
+                      }
+                       if (currentSatiety >= maxSatiety) {
+                          break;
+                       }
                     }
-                    break;
                 }
+
             }
             //травоядные
-            if (eatListAnimal.containsKey("plant") && currentSatiety < maxSatiety) {
-              Integer probPlant = eatListAnimal.get("plant");
-              if (probPlant > 0) {
-                  Plant plant = locate.removePlant();
-                  if (plant != null) {
-                      currentSatiety = Math.min(maxSatiety, currentSatiety + plant.getWeight());
-                      System.out.println(this.getAnimalName() + " съел растение ");
-                  }
-              }
+            for (int i = 0; i < 3; i++) {
+                if (eatListAnimal.containsKey("plant") && currentSatiety < maxSatiety) {
+                    Integer probPlant = eatListAnimal.get("plant");
+                    if (probPlant > 0) {
+                        Plant plant = locate.removePlant();
+                        if (plant != null) {
+                            currentSatiety = Math.min(maxSatiety, currentSatiety + plant.getWeight());
+                            System.out.println(this.getAnimalName() + " съел растение ");
+                        }
+                    }
+                }
             }
         }
     }
@@ -99,7 +107,7 @@ public abstract class Animal {
         int oldX = currentX;
         int oldY = currentY;
         for (int i = 0; i < jamp; i++) {
-            int dirction = ThreadLocalRandom.current().nextInt(4);
+            int dirction = ThreadLocalRandom.current().nextInt(10);
             switch ((dirction)) {
                 case 0:
                     // вверх Y
@@ -117,6 +125,9 @@ public abstract class Animal {
                     // влево X
                     newX = Math.max(0, currentX - 1);
                     break;
+                default:
+                    //остаемся на месте
+                    continue;
             }
             if (newX != oldX || newY != oldY) {
                 Location location = island.getLocation(newX, newY);
@@ -126,7 +137,6 @@ public abstract class Animal {
                     locationOld.removeAnimal(this);
                     oldX = newX;
                     oldY = newY;
-
                 }
             }
         }
@@ -144,6 +154,8 @@ public abstract class Animal {
     //  размножение
     public void reproduce(Location location) {
         if (!alive) {return;}
+        //если Ж голодная (менее 1/3 сытости), то выходим. если М- выходим
+        if (((this.gender == 1) && (this.getMaxSatiety() / 3 > this.getCurrentSatiety())) || (this.gender == 0)){ return;}
         // Подсчет особей того же вида, с учетом пола
         long sameSpeciesGenderCount = location.getAnimals().stream()
                 .filter(a -> a.getClass() == this.getClass() && a != this && a.isAlive() && (this.gender != a.gender || this.gender == -1)) // промежуточная

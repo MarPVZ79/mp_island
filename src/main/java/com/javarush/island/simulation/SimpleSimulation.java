@@ -12,8 +12,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class SimpleSimulation {
     private final Island island;
     private final SimulationConfig config;
-    private static final double SATIETY_PER_TICK = 0.01;
-
     public SimpleSimulation(SimulationConfig config) {
         this.config = config;
         this.island = new Island(config.getIslandWidth(), config.getIslandHeight());
@@ -100,7 +98,9 @@ public class SimpleSimulation {
             for (int x = 0; x < island.getWidth(); x++) {
                 Location location = island.getLocation(x, y);
                 for (int p = 0; p < config.getInitialPlants(); p++) {
-                    location.addPlant(new Plant());
+                    if (p <= config.getPlantsMaxCount()) {
+                        location.addPlant(new Plant(config.getPlantsWeight()));
+                    }
                 }
             }
         }
@@ -114,7 +114,9 @@ public class SimpleSimulation {
             for (int x = 0; x < island.getWidth(); x++) {
                 Location location = island.getLocation(x, y);
                 for (int i = 0; i < config.getPlantsPerCell(); i++) {
-                    location.addPlant(new Plant());
+                    if (location.getPlants().size() <= config.getPlantsMaxCount()) {
+                        location.addPlant(new Plant(config.getPlantsWeight()));
+                    }
                 }
             }
         }
@@ -131,9 +133,9 @@ public class SimpleSimulation {
                     animal.move(island, x, y);
                     animal.reproduce(location);
                     // Уменьшить сытость
-                    animal.setCurrentSatiety(animal.getCurrentSatiety() - SATIETY_PER_TICK);
+                    animal.setCurrentSatiety(animal.getCurrentSatiety() -  animal.getWeight() / 500);
                     if (animal.getCurrentSatiety() <= 0) {
-                        System.out.println("die "+ animal.getAnimalName());
+                        System.out.println("Умер от голода "+ animal.getAnimalName());
                         animal.die();
                         location.removeAnimal(animal);
                     }
